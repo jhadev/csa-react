@@ -1,32 +1,51 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+import { Flex, Box } from '@chakra-ui/core';
 
 function App() {
-  const [count, setCount] = useState(0);
-  setTimeout(() => setCount(count + 1), 1000);
+  function* gen(arr) {
+    yield* arr;
+  }
+
+  function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  const [items, setItems] = useState([1, 2, 3, 4, 5, 6, 7]);
+  const [selected, setSelected] = useState(null);
+  const [genned, setGenned] = useState(gen(items));
+
+  useEffect(() => {
+    async function stepThrough() {
+      await delay(2000);
+
+      const next = genned.next().value;
+
+      console.log(next);
+
+      if (next) {
+        setSelected(next);
+        console.log(selected);
+      } else {
+        setSelected('The End');
+      }
+    }
+
+    stepThrough();
+  }, [selected, genned]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.jsx</code> and save to reload.
-        </p>
-        <p>
-          Page has been open for <code>{count}</code> seconds.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </p>
-      </header>
-    </div>
+    <main>
+      <Flex align="center" justify="center">
+        {selected ? (
+          <Box bg="tomato" w="50%" p={4} color="white">
+            {selected}
+          </Box>
+        ) : (
+          <h2>Hi!</h2>
+        )}
+      </Flex>
+    </main>
   );
 }
 
